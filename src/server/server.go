@@ -3,10 +3,8 @@ package main
 import (
 	"copilot/copilot"
 	"copilot/epaxos"
-	"copilot/gpaxos"
 	"copilot/latentcopilot"
 	"copilot/masterproto"
-	"copilot/mencius"
 	"copilot/paxos"
 	"flag"
 	"fmt"
@@ -63,14 +61,6 @@ func main() {
 	if *doEpaxos {
 		log.Println("Starting Egalitarian Paxos replica...")
 		rep := epaxos.NewReplica(replicaId, nodeList, *thrifty, *exec, *dreply, *beacon, *durable)
-		rpc.Register(rep)
-	} else if *doMencius {
-		log.Println("Starting Mencius replica...")
-		rep := mencius.NewReplica(replicaId, nodeList, *thrifty, *exec, *dreply, *durable)
-		rpc.Register(rep)
-	} else if *doGpaxos {
-		log.Println("Starting Generalized Paxos replica...")
-		rep := gpaxos.NewReplica(replicaId, nodeList, *thrifty, *exec, *dreply)
 		rpc.Register(rep)
 	} else if *doCopilot {
 		log.Println("Starting Copilot replica...")

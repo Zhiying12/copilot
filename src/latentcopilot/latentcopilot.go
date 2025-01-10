@@ -195,7 +195,7 @@ type Replica struct {
 	CommittedUpTo         []int32       // highest committed instance per replica that this replica knows about
 	ExecedUpTo            []int32       // instance up to which all commands have been executed (including iteslf)
 	//exec                  *Exec
-	conflicts          []map[state.Key]int32
+	conflicts          []map[string]int32
 	latestCPReplica    int32
 	latestCPInstance   int32
 	clientMutex        *sync.Mutex // for synchronizing when sending replies to clients from multiple go-routines
@@ -300,7 +300,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 		make([]int32, len(peerAddrList)),
 		make([]int32, len(peerAddrList)),
 		make([]int32, len(peerAddrList)),
-		make([]map[state.Key]int32, len(peerAddrList)),
+		make([]map[string]int32, len(peerAddrList)),
 		0,
 		-1,
 		new(sync.Mutex),
@@ -345,7 +345,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 		r.crtInstance[i] = 0
 		r.ExecedUpTo[i] = -1
 		r.CommittedUpTo[i] = -1
-		r.conflicts[i] = make(map[state.Key]int32, HT_INIT_SIZE)
+		r.conflicts[i] = make(map[string]int32, HT_INIT_SIZE)
 		r.preAcceptDeps[i] = make([]int32, 2*1024*1024)
 
 		// init view
@@ -1751,7 +1751,7 @@ func (r *Replica) bcastCommit(replica int32, instance int32, cmds []state.Comman
 
 func (r *Replica) clearHashtables() {
 	for q := 0; q < r.N; q++ {
-		r.conflicts[q] = make(map[state.Key]int32, HT_INIT_SIZE)
+		r.conflicts[q] = make(map[string]int32, HT_INIT_SIZE)
 	}
 }
 
@@ -1789,7 +1789,7 @@ func bfFromCommands(cmds []state.Command) *bloomfilter.Bloomfilter {
 	bf := bloomfilter.NewPowTwo(bf_PT, BF_K)
 
 	for i := 0; i < len(cmds); i++ {
-		bf.AddUint64(uint64(cmds[i].K))
+		bf.AddUint64(uint64(cmds[i].OpId))
 	}
 
 	return bf

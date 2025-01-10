@@ -71,8 +71,8 @@ type Replica struct {
 	CommittedUpTo         []int32       // highest committed instance per replica that this replica knows about
 	ExecedUpTo            []int32       // instance up to which all commands have been executed (including iteslf)
 	exec                  *Exec
-	conflicts             []map[state.Key]int32
-	maxSeqPerKey          map[state.Key]int32
+	conflicts             []map[string]int32
+	maxSeqPerKey          map[string]int32
 	maxSeq                int32
 	latestCPReplica       int32
 	latestCPInstance      int32
@@ -142,8 +142,8 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 		make([]int32, len(peerAddrList)),
 		make([]int32, len(peerAddrList)),
 		nil,
-		make([]map[state.Key]int32, len(peerAddrList)),
-		make(map[state.Key]int32),
+		make([]map[string]int32, len(peerAddrList)),
+		make(map[string]int32),
 		0,
 		0,
 		-1,
@@ -158,7 +158,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 		r.crtInstance[i] = 0
 		r.ExecedUpTo[i] = -1
 		r.CommittedUpTo[i] = -1
-		r.conflicts[i] = make(map[state.Key]int32, HT_INIT_SIZE)
+		r.conflicts[i] = make(map[string]int32, HT_INIT_SIZE)
 	}
 
 	for bf_PT = 1; math.Pow(2, float64(bf_PT))/float64(MAX_BATCH) < BF_M_N; {
@@ -829,7 +829,7 @@ func (r *Replica) bcastCommit(replica int32, instance int32, cmds []state.Comman
 
 func (r *Replica) clearHashtables() {
 	for q := 0; q < r.N; q++ {
-		r.conflicts[q] = make(map[state.Key]int32, HT_INIT_SIZE)
+		r.conflicts[q] = make(map[string]int32, HT_INIT_SIZE)
 	}
 }
 
@@ -843,19 +843,19 @@ func (r *Replica) updateCommitted(replica int32) {
 
 func (r *Replica) updateConflicts(cmds []state.Command, replica int32, instance int32, seq int32) {
 	for i := 0; i < len(cmds); i++ {
-		if d, present := r.conflicts[replica][cmds[i].K]; present {
+		if d, present := r.conflicts[replica][cmds[i].K.B64()]; present {
 			if d < instance {
-				r.conflicts[replica][cmds[i].K] = instance
+				r.conflicts[replica][cmds[i].K.B64()] = instance
 			}
 		} else {
-			r.conflicts[replica][cmds[i].K] = instance
+			r.conflicts[replica][cmds[i].K.B64()] = instance
 		}
-		if s, present := r.maxSeqPerKey[cmds[i].K]; present {
+		if s, present := r.maxSeqPerKey[cmds[i].K.B64()]; present {
 			if s < seq {
-				r.maxSeqPerKey[cmds[i].K] = seq
+				r.maxSeqPerKey[cmds[i].K.B64()] = seq
 			}
 		} else {
-			r.maxSeqPerKey[cmds[i].K] = seq
+			r.maxSeqPerKey[cmds[i].K.B64()] = seq
 		}
 	}
 }
@@ -867,7 +867,7 @@ func (r *Replica) updateAttributes(cmds []state.Command, seq int32, deps []int32
 			continue
 		}
 		for i := 0; i < len(cmds); i++ {
-			if d, present := (r.conflicts[q])[cmds[i].K]; present {
+			if d, present := (r.conflicts[q])[cmds[i].K.B64()]; present {
 				if d > deps[q] {
 					deps[q] = d
 					if seq <= r.InstanceSpace[q][d].Seq {
@@ -880,7 +880,7 @@ func (r *Replica) updateAttributes(cmds []state.Command, seq int32, deps []int32
 		}
 	}
 	for i := 0; i < len(cmds); i++ {
-		if s, present := r.maxSeqPerKey[cmds[i].K]; present {
+		if s, present := r.maxSeqPerKey[cmds[i].K.B64()]; present {
 			if seq <= s {
 				changed = true
 				seq = s + 1
@@ -930,7 +930,7 @@ func bfFromCommands(cmds []state.Command) *bloomfilter.Bloomfilter {
 	bf := bloomfilter.NewPowTwo(bf_PT, BF_K)
 
 	for i := 0; i < len(cmds); i++ {
-		bf.AddUint64(uint64(cmds[i].K))
+		bf.AddUint64(uint64(cmds[i].OpId))
 	}
 
 	return bf

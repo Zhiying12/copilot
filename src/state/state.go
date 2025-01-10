@@ -1,14 +1,13 @@
 package state
 
 import (
+	"bytes"
+	"encoding/base64"
+	"fmt"
 	"sync"
-	//"fmt"
-	//"code.google.com/p/leveldb-go/leveldb"
-	//"encoding/binary"
 )
 
 type Operation uint8
-//type OperationId int32
 
 const (
 	NONE Operation = iota
@@ -19,23 +18,46 @@ const (
 	WLOCK
 )
 
-type Value int64
+type Value []byte
 
-const NIL Value = 0
+//const NIL Value = []byte{0}
 
-type Key int64
+var NIL = []byte{0}
+
+type Key []byte
+
+func (k *Key) B64() string {
+	return base64.StdEncoding.EncodeToString(*k)
+}
+
+func KeyFromB64(k string) Key {
+	kb, err := base64.StdEncoding.DecodeString(k)
+
+	if err == nil {
+		return kb
+	}
+	return nil
+}
+
+func (k Key) ToPeerId(numPeers int32) int32 {
+	return (int32(k[0]) + int32(k[len(k)-1])) % numPeers
+}
 
 type Command struct {
 	ClientId uint32
-	OpId int32
-	Op Operation
-	K  Key
-	V  Value
+	OpId     int32
+	Op       Operation
+	K        Key
+	V        Value
+}
+
+func (c Command) String() string {
+	return fmt.Sprintf("Cmd={K=%v}", c.K)
 }
 
 type State struct {
 	mutex *sync.Mutex
-	Store map[Key]Value
+	Store map[string]Value
 	//DB *leveldb.DB
 }
 
@@ -50,14 +72,12 @@ func InitState() *State {
 	   return &State{d}
 	*/
 
-	//return &State{new(sync.Mutex), make(map[Key]Value)}
-	return &State{new(sync.Mutex), make(map[Key]Value, 100000)}
-	//return &State{new(sync.Mutex), make(map[Key]Value, 10000000)}
-	//return &State{new(sync.Mutex), make(map[Key]Value, 100000000)}
+	return &State{new(sync.Mutex), make(map[string]Value)}
 }
 
 func Conflict(gamma *Command, delta *Command) bool {
-	if gamma.K == delta.K {
+	//if gamma.K == delta.K {
+	if bytes.Equal(gamma.K, delta.K) {
 		if gamma.Op == PUT || delta.Op == PUT {
 			return true
 		}
@@ -96,11 +116,11 @@ func (c *Command) Execute(st *State) Value {
 		   st.DB.Set(key[:], value[:], nil)
 		*/
 
-		st.Store[c.K] = c.V
+		st.Store[c.K.B64()] = c.V
 		return c.V
 
 	case GET:
-		if val, present := st.Store[c.K]; present {
+		if val, present := st.Store[c.K.B64()]; present {
 			return val
 		}
 	}
