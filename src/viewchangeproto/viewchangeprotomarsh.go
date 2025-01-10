@@ -1,7 +1,7 @@
 package viewchangeproto
 
 import (
-	"fastrpc"
+	"copilot/fastrpc"
 	"io"
 	"sync"
 )
@@ -43,8 +43,8 @@ func (t *AcceptViewReply) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type AcceptViewReplyCache struct {
-	mu	sync.Mutex
-	cache	[]*AcceptViewReply
+	mu    sync.Mutex
+	cache []*AcceptViewReply
 }
 
 func NewAcceptViewReplyCache() *AcceptViewReplyCache {
@@ -107,8 +107,8 @@ func (t *View) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type ViewCache struct {
-	mu	sync.Mutex
-	cache	[]*View
+	mu    sync.Mutex
+	cache []*View
 }
 
 func NewViewCache() *ViewCache {
@@ -175,8 +175,8 @@ func (t *ViewChangeReply) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type ViewChangeReplyCache struct {
-	mu	sync.Mutex
-	cache	[]*ViewChangeReply
+	mu    sync.Mutex
+	cache []*ViewChangeReply
 }
 
 func NewViewChangeReplyCache() *ViewChangeReplyCache {
@@ -293,8 +293,8 @@ func (t *InitView) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type InitViewCache struct {
-	mu	sync.Mutex
-	cache	[]*InitView
+	mu    sync.Mutex
+	cache []*InitView
 }
 
 func NewInitViewCache() *InitViewCache {
@@ -373,8 +373,8 @@ func (t *ViewChange) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type ViewChangeCache struct {
-	mu	sync.Mutex
-	cache	[]*ViewChange
+	mu    sync.Mutex
+	cache []*ViewChange
 }
 
 func NewViewChangeCache() *ViewChangeCache {
@@ -459,8 +459,8 @@ func (t *ViewChangeOK) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type ViewChangeOKCache struct {
-	mu	sync.Mutex
-	cache	[]*ViewChangeOK
+	mu    sync.Mutex
+	cache []*ViewChangeOK
 }
 
 func NewViewChangeOKCache() *ViewChangeOKCache {
@@ -551,8 +551,8 @@ func (t *ViewChangeReject) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type ViewChangeRejectCache struct {
-	mu	sync.Mutex
-	cache	[]*ViewChangeReject
+	mu    sync.Mutex
+	cache []*ViewChangeReject
 }
 
 func NewViewChangeRejectCache() *ViewChangeRejectCache {
@@ -637,8 +637,8 @@ func (t *AcceptView) BinarySize() (nbytes int, sizeKnown bool) {
 }
 
 type AcceptViewCache struct {
-	mu	sync.Mutex
-	cache	[]*AcceptView
+	mu    sync.Mutex
+	cache []*AcceptView
 }
 
 func NewAcceptViewCache() *AcceptViewCache {

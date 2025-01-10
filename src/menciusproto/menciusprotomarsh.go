@@ -1,7 +1,7 @@
 package menciusproto
 
 import (
-	"fastrpc"
+	"copilot/fastrpc"
 	"io"
 	"sync"
 )

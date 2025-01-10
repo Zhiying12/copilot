@@ -1,18 +1,18 @@
 package epaxos
 
 import (
-	"bloomfilter"
-	"dlog"
+	"copilot/bloomfilter"
+	"copilot/dlog"
+	"copilot/epaxosproto"
+	"copilot/fastrpc"
+	"copilot/genericsmr"
+	"copilot/genericsmrproto"
+	"copilot/state"
 	"encoding/binary"
-	"epaxosproto"
-	"fastrpc"
 	"fmt"
-	"genericsmr"
-	"genericsmrproto"
 	"io"
 	"log"
 	"math"
-	"state"
 	"sync"
 	"time"
 )
@@ -25,7 +25,7 @@ const FALSE = uint8(0)
 const ADAPT_TIME_SEC = 10
 
 const MAX_BATCH = 5000
-const BATCH_INTERVAL =  100 * time.Microsecond
+const BATCH_INTERVAL = 100 * time.Microsecond
 
 const COMMIT_GRACE_PERIOD = 10 * 1e9 //10 seconds
 //const COMMIT_GRACE_PERIOD = 10 * 1e6 //10 seconds
@@ -68,7 +68,7 @@ type Replica struct {
 	tryPreAcceptReplyRPC  uint8
 	InstanceSpace         [][]*Instance // the space of all instances (used and not yet used)
 	crtInstance           []int32       // highest active instance numbers that this replica knows about
-	CommittedUpTo         []int32     // highest committed instance per replica that this replica knows about
+	CommittedUpTo         []int32       // highest committed instance per replica that this replica knows about
 	ExecedUpTo            []int32       // instance up to which all commands have been executed (including iteslf)
 	exec                  *Exec
 	conflicts             []map[state.Key]int32
@@ -187,13 +187,13 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 	return r
 }
 
-//append a log entry to stable storage
+// append a log entry to stable storage
 func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	if !r.Durable {
 		return
 	}
 
-	b := make([]byte, 9 + r.N * 4)
+	b := make([]byte, 9+r.N*4)
 	binary.LittleEndian.PutUint32(b[0:4], uint32(inst.ballot))
 	b[4] = byte(inst.Status)
 	binary.LittleEndian.PutUint32(b[5:9], uint32(inst.Seq))
@@ -205,7 +205,7 @@ func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	r.StableStore.Write(b[:])
 }
 
-//write a sequence of commands to stable storage
+// write a sequence of commands to stable storage
 func (r *Replica) recordCommands(cmds []state.Command) {
 	if !r.Durable {
 		return
@@ -219,7 +219,7 @@ func (r *Replica) recordCommands(cmds []state.Command) {
 	}
 }
 
-//sync with the stable store
+// sync with the stable store
 func (r *Replica) sync() {
 	if !r.Durable {
 		return
@@ -705,7 +705,7 @@ func (r *Replica) bcastPreAccept(replica int32, instance int32, ballot int32, cm
 
 	n := r.N - 1
 	if r.Thrifty {
-		n = r.N/2 + (r.N/2 + 1) / 2 - 1
+		n = r.N/2 + (r.N/2+1)/2 - 1
 	}
 
 	sent := 0
@@ -848,8 +848,8 @@ func (r *Replica) updateConflicts(cmds []state.Command, replica int32, instance 
 				r.conflicts[replica][cmds[i].K] = instance
 			}
 		} else {
-            r.conflicts[replica][cmds[i].K] = instance
-        }
+			r.conflicts[replica][cmds[i].K] = instance
+		}
 		if s, present := r.maxSeqPerKey[cmds[i].K]; present {
 			if s < seq {
 				r.maxSeqPerKey[cmds[i].K] = seq
@@ -1196,7 +1196,7 @@ func (r *Replica) handlePreAcceptReply(pareply *epaxosproto.PreAcceptReply) {
 	}
 
 	//can we commit on the fast path?
-	if inst.lb.preAcceptOKs >= r.N/2 + (r.N/2 + 1) / 2 - 1 && inst.lb.allEqual && allCommitted && isInitialBallot(inst.ballot) {
+	if inst.lb.preAcceptOKs >= r.N/2+(r.N/2+1)/2-1 && inst.lb.allEqual && allCommitted && isInitialBallot(inst.ballot) {
 		happy++
 		dlog.Printf("Fast path for instance %d.%d\n", pareply.Replica, pareply.Instance)
 		r.InstanceSpace[pareply.Replica][pareply.Instance].Status = epaxosproto.COMMITTED
@@ -1258,7 +1258,7 @@ func (r *Replica) handlePreAcceptOK(pareply *epaxosproto.PreAcceptOK) {
 	}
 
 	//can we commit on the fast path?
-	if inst.lb.preAcceptOKs >= r.N/2 + (r.N/2 + 1) / 2 - 1 && inst.lb.allEqual && allCommitted && isInitialBallot(inst.ballot) {
+	if inst.lb.preAcceptOKs >= r.N/2+(r.N/2+1)/2-1 && inst.lb.allEqual && allCommitted && isInitialBallot(inst.ballot) {
 		happy++
 		r.InstanceSpace[r.Id][pareply.Instance].Status = epaxosproto.COMMITTED
 		r.updateCommitted(r.Id)

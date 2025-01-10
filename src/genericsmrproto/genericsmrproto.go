@@ -1,7 +1,7 @@
 package genericsmrproto
 
 import (
-	"state"
+	"copilot/state"
 )
 
 const (
@@ -91,7 +91,7 @@ type RegisterClientIdReply struct {
 }
 
 type GetView struct {
-	PilotId   int32
+	PilotId int32
 }
 
 type GetViewReply struct {

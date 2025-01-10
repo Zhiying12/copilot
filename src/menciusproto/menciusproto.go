@@ -1,7 +1,7 @@
 package menciusproto
 
 import (
-	"state"
+	"copilot/state"
 )
 
 type Skip struct {

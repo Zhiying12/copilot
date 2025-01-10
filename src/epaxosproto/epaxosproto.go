@@ -1,7 +1,7 @@
 package epaxosproto
 
 import (
-	"state"
+	"copilot/state"
 )
 
 type Prepare struct {

@@ -4,15 +4,15 @@ import (
 	"log"
 	//	"dlog"
 	"bufio"
+	"copilot/genericsmrproto"
+	"copilot/masterproto"
+	"copilot/state"
 	"flag"
 	"fmt"
-	"genericsmrproto"
-	"masterproto"
 	"math/rand"
 	"net"
 	"net/rpc"
 	"runtime"
-	"state"
 	"time"
 )
 

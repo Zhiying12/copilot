@@ -2,17 +2,17 @@ package main
 
 import (
 	"bufio"
-	"dlog"
+	"copilot/dlog"
+	"copilot/genericsmrproto"
+	"copilot/masterproto"
+	"copilot/state"
 	"flag"
 	"fmt"
-	"genericsmrproto"
 	"log"
-	"masterproto"
 	"math/rand"
 	"net"
 	"net/rpc"
 	"runtime"
-	"state"
 	"time"
 )
 

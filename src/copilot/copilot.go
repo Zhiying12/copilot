@@ -1,23 +1,23 @@
 package copilot
 
 import (
-	"bloomfilter"
 	"bufio"
-	"copilotproto"
-	"dlog"
+	"copilot/bloomfilter"
+	"copilot/copilotproto"
+	"copilot/dlog"
+	"copilot/fastrpc"
+	"copilot/genericsmr"
+	"copilot/genericsmrproto"
+	"copilot/state"
+	"copilot/viewchangeproto"
 	"encoding/binary"
-	"fastrpc"
 	"fmt"
-	"genericsmr"
-	"genericsmrproto"
 	"io"
 	"log"
 	"math"
 	"sort"
-	"state"
 	"sync"
 	"time"
-	"viewchangeproto"
 )
 
 const NUM_LEADERS = 2
@@ -355,7 +355,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 	return r
 }
 
-//append a log entry to stable storage
+// append a log entry to stable storage
 func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	if !r.Durable {
 		return
@@ -372,7 +372,7 @@ func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	r.StableStore.Write(b[:])
 }
 
-//write a sequence of commands to stable storage
+// write a sequence of commands to stable storage
 func (r *Replica) recordCommands(cmds []state.Command) {
 	if !r.Durable {
 		return
@@ -386,7 +386,7 @@ func (r *Replica) recordCommands(cmds []state.Command) {
 	}
 }
 
-//sync with the stable store
+// sync with the stable store
 func (r *Replica) sync() {
 	if !r.Durable {
 		return
@@ -2869,11 +2869,13 @@ func (r *Replica) handleTryPreAcceptReply(tpar *copilotproto.TryPreAcceptReply) 
 	}
 }
 
-/**********************************************************************
+/*
+*********************************************************************
 
-                      VIEW CHANGE PROTOCOL
+	VIEW CHANGE PROTOCOL
 
-***********************************************************************/
+**********************************************************************
+*/
 func (r *Replica) startViewChange(pilotId, oldViewId int32) {
 
 	// return if a replica already updated to a view newer than the one we want to change

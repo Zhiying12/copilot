@@ -2,17 +2,16 @@ package genericsmr
 
 import (
 	"bufio"
-	"dlog"
+	"copilot/dlog"
+	"copilot/fastrpc"
+	"copilot/genericsmrproto"
+	"copilot/state"
 	"encoding/binary"
-	"fastrpc"
 	"fmt"
-	"genericsmrproto"
 	"io"
 	"log"
 	"net"
 	"os"
-	"rdtsc"
-	"state"
 	"time"
 )
 
@@ -336,8 +335,8 @@ func (r *Replica) replicaListener(rid int, reader *bufio.Reader) {
 				break
 			}
 			//TODO: UPDATE STUFF
-			r.Ewma[rid] = 0.99*r.Ewma[rid] + 0.01*float64(rdtsc.Cputicks()-gbeaconReply.Timestamp)
-			log.Println(r.Ewma)
+			//r.Ewma[rid] = 0.99*r.Ewma[rid] + 0.01*float64(rdtsc.Cputicks()-gbeaconReply.Timestamp)
+			//log.Println(r.Ewma)
 			break
 
 		default:
@@ -521,11 +520,11 @@ func (r *Replica) ReplyProposeTS(reply *genericsmrproto.ProposeReplyTS, w *bufio
 }
 
 func (r *Replica) SendBeacon(peerId int32) {
-	w := r.PeerWriters[peerId]
-	w.WriteByte(genericsmrproto.GENERIC_SMR_BEACON)
-	beacon := &genericsmrproto.Beacon{rdtsc.Cputicks()}
-	beacon.Marshal(w)
-	w.Flush()
+	//w := r.PeerWriters[peerId]
+	//w.WriteByte(genericsmrproto.GENERIC_SMR_BEACON)
+	//beacon := &genericsmrproto.Beacon{rdtsc.Cputicks()}
+	//beacon.Marshal(w)
+	//w.Flush()
 }
 
 func (r *Replica) ReplyBeacon(beacon *Beacon) {

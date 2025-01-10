@@ -1,16 +1,16 @@
 package paxos
 
 import (
-	"dlog"
+	"copilot/dlog"
+	"copilot/fastrpc"
+	"copilot/genericsmr"
+	"copilot/genericsmrproto"
+	"copilot/paxosproto"
+	"copilot/state"
 	"encoding/binary"
-	"fastrpc"
 	"fmt"
-	"genericsmr"
-	"genericsmrproto"
 	"io"
 	"log"
-	"paxosproto"
-	"state"
 	"time"
 )
 
@@ -103,7 +103,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 	return r
 }
 
-//append a log entry to stable storage
+// append a log entry to stable storage
 func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	if !r.Durable {
 		return
@@ -115,7 +115,7 @@ func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	r.StableStore.Write(b[:])
 }
 
-//write a sequence of commands to stable storage
+// write a sequence of commands to stable storage
 func (r *Replica) recordCommands(cmds []state.Command) {
 	if !r.Durable {
 		return
@@ -129,7 +129,7 @@ func (r *Replica) recordCommands(cmds []state.Command) {
 	}
 }
 
-//sync with the stable store
+// sync with the stable store
 func (r *Replica) sync() {
 	if !r.Durable {
 		return

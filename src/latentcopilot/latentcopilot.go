@@ -1,24 +1,24 @@
 package latentcopilot
 
 import (
-	"bloomfilter"
 	"bufio"
-	"dlog"
+	"copilot/bloomfilter"
+	"copilot/dlog"
+	"copilot/fastrpc"
+	"copilot/genericsmr"
+	"copilot/genericsmrproto"
+	"copilot/latentcopilotproto"
+	"copilot/state"
+	"copilot/viewchangeproto"
 	"encoding/binary"
-	"fastrpc"
 	"fmt"
-	"genericsmr"
-	"genericsmrproto"
 	"io"
-	"latentcopilotproto"
 	"log"
 	"math"
 	"os"
 	"sort"
-	"state"
 	"sync"
 	"time"
-	"viewchangeproto"
 )
 
 const NUM_LEADERS = 2
@@ -391,7 +391,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 	return r
 }
 
-//append a log entry to stable storage
+// append a log entry to stable storage
 func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	if !r.Durable {
 		return
@@ -408,7 +408,7 @@ func (r *Replica) recordInstanceMetadata(inst *Instance) {
 	r.StableStore.Write(b[:])
 }
 
-//write a sequence of commands to stable storage
+// write a sequence of commands to stable storage
 func (r *Replica) recordCommands(cmds []state.Command) {
 	if !r.Durable {
 		return
@@ -422,7 +422,7 @@ func (r *Replica) recordCommands(cmds []state.Command) {
 	}
 }
 
-//sync with the stable store
+// sync with the stable store
 func (r *Replica) sync() {
 	if !r.Durable {
 		return
@@ -1880,11 +1880,13 @@ func (r *Replica) startFastPathClock(iid *instanceId) {
 	r.slowPathChan <- iid
 }
 
-/**********************************************************************
+/*
+*********************************************************************
 
-                            PHASE 1
+	PHASE 1
 
-***********************************************************************/
+**********************************************************************
+*/
 func (r *Replica) handleProposeForLatentPilot(propose *genericsmr.Propose) {
 	//TODO!! Handle client retries
 
@@ -3404,11 +3406,13 @@ func (r *Replica) handleTryPreAcceptReply(tpar *latentcopilotproto.TryPreAcceptR
 	}
 }
 
-/**********************************************************************
+/*
+*********************************************************************
 
-                      VIEW CHANGE PROTOCOL
+	VIEW CHANGE PROTOCOL
 
-***********************************************************************/
+**********************************************************************
+*/
 func (r *Replica) startViewChange(pilotId int32) {
 
 	currViewState := r.views[pilotId]

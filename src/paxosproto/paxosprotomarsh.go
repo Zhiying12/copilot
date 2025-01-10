@@ -2,10 +2,10 @@ package paxosproto
 
 import (
 	"bufio"
+	"copilot/fastrpc"
+	"copilot/state"
 	"encoding/binary"
-	"fastrpc"
 	"io"
-	"state"
 	"sync"
 )
 

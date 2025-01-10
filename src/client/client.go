@@ -2,17 +2,17 @@ package main
 
 import (
 	"bufio"
-	"dlog"
+	"copilot/dlog"
+	"copilot/genericsmrproto"
+	"copilot/masterproto"
+	"copilot/state"
 	"flag"
 	"fmt"
-	"genericsmrproto"
 	"log"
-	"masterproto"
 	"math/rand"
 	"net"
 	"net/rpc"
 	"runtime"
-	"state"
 	"time"
 )
 
@@ -126,7 +126,7 @@ func main() {
 
 	var id int32 = 0
 	done := make(chan bool, N)
-	args := genericsmrproto.Propose{id, state.Command{state.PUT, 0, 0}, 0}
+	args := genericsmrproto.Propose{CommandId: id, Command: state.Command{ClientId: uint32(state.PUT)}}
 
 	before_total := time.Now()
 

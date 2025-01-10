@@ -2,12 +2,12 @@ package gpaxos
 
 import (
 	"bufio"
-	"dlog"
-	"genericsmr"
-	"genericsmrproto"
-	"gpaxosproto"
+	"copilot/dlog"
+	"copilot/genericsmr"
+	"copilot/genericsmrproto"
+	"copilot/gpaxosproto"
+	"copilot/state"
 	"log"
-	"state"
 	"sync"
 	"time"
 )
