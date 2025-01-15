@@ -520,11 +520,11 @@ func (r *Replica) ReplyProposeTS(reply *genericsmrproto.ProposeReplyTS, w *bufio
 }
 
 func (r *Replica) SendBeacon(peerId int32) {
-	//w := r.PeerWriters[peerId]
-	//w.WriteByte(genericsmrproto.GENERIC_SMR_BEACON)
-	//beacon := &genericsmrproto.Beacon{rdtsc.Cputicks()}
-	//beacon.Marshal(w)
-	//w.Flush()
+	w := r.PeerWriters[peerId]
+	w.WriteByte(genericsmrproto.GENERIC_SMR_BEACON)
+	beacon := &genericsmrproto.Beacon{Timestamp: 1}
+	beacon.Marshal(w)
+	w.Flush()
 }
 
 func (r *Replica) ReplyBeacon(beacon *Beacon) {
