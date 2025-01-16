@@ -20,9 +20,9 @@ import (
 )
 
 var portnum *int = flag.Int("port", 7070, "Port # to listen on. Defaults to 7070")
-var masterAddr *string = flag.String("maddr", "", "Master address. Defaults to localhost.")
+var masterAddr *string = flag.String("maddr", "0.0.0.0", "Master address. Defaults to localhost.")
 var masterPort *int = flag.Int("mport", 7087, "Master port.  Defaults to 7087.")
-var myAddr *string = flag.String("addr", "", "Server address (this machine). Defaults to localhost.")
+var myAddr *string = flag.String("addr", "0.0.0.0", "Server address (this machine). Defaults to localhost.")
 var doMencius *bool = flag.Bool("m", false, "Use Mencius as the replication protocol. Defaults to false.")
 var doGpaxos *bool = flag.Bool("g", false, "Use Generalized Paxos as the replication protocol. Defaults to false.")
 var doEpaxos *bool = flag.Bool("e", false, "Use EPaxos as the replication protocol. Defaults to false.")
