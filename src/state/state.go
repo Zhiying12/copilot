@@ -27,7 +27,7 @@ var NIL = []byte{0}
 type Key []byte
 
 func (k *Key) B64() string {
-	return base64.StdEncoding.EncodeToString(*k)
+	return string(*k)
 }
 
 func KeyFromB64(k string) Key {
