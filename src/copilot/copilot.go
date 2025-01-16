@@ -39,7 +39,7 @@ const BEACON_FAILURE_THRESHOLD = 1
 const REPLICA_ID_NBITS = 4
 const REPLICA_ID_BITMASK = int32(1<<REPLICA_ID_NBITS - 1)
 
-const MAX_BATCH = 5000
+const MAX_BATCH = 1
 const BATCH_INTERVAL = 100 * time.Microsecond
 
 const FAST_PATH_TIMEOUT = 5 * 1e6                 // 5ms
@@ -192,7 +192,7 @@ type Replica struct {
 	clientWriters      map[uint32]*bufio.Writer
 	//execMap               map[int64]*Result
 	//execMap             map[int64]bool
-	execMap             []bool // keep track executed commands; could also use map; chose array for performance reason
+	execMap             map[uint32]bool // keep track executed commands; could also use map; chose array for performance reason
 	latestOps           []int32
 	views               []*ViewChangeState
 	beaconReceivedTimes []time.Time
@@ -288,7 +288,7 @@ func NewReplica(id int, peerAddrList []string, thrifty bool, exec bool, dreply b
 		Stats{batches: 0, cmds: 0, fast: 0, slow: 0, rpcsSent: 0, rpcsRcvd: 0},
 		make(map[uint32]*bufio.Writer),
 		//make(map[int64]bool, 1000),
-		make([]bool, MAX_CLIENTS<<21),
+		make(map[uint32]bool),
 		//make(map[int64]bool, 100000000),
 		//make(map[int64]bool),
 		//make(map[int64]*Result),
@@ -2203,18 +2203,18 @@ func (r *Replica) handleAcceptReply(areply *copilotproto.AcceptReply) {
 		r.InstanceSpace[areply.Replica][areply.Instance].Status = copilotproto.COMMITTED
 		r.updateCommitted(areply.Replica)
 		inst.committedTime = time.Now()
-		if inst.lb.clientProposals != nil && !r.Dreply {
-			// give clients the all clear
-			for i := 0; i < len(inst.lb.clientProposals); i++ {
-				r.ReplyProposeTS(
-					&genericsmrproto.ProposeReplyTS{
-						TRUE,
-						inst.lb.clientProposals[i].CommandId,
-						state.NIL,
-						inst.lb.clientProposals[i].Timestamp},
-					inst.lb.clientProposals[i].Reply)
-			}
-		}
+		//if inst.lb.clientProposals != nil && !r.Dreply {
+		//	// give clients the all clear
+		//	for i := 0; i < len(inst.lb.clientProposals); i++ {
+		//		r.ReplyProposeTS(
+		//			&genericsmrproto.ProposeReplyTS{
+		//				TRUE,
+		//				inst.lb.clientProposals[i].CommandId,
+		//				state.NIL,
+		//				inst.lb.clientProposals[i].Timestamp},
+		//			inst.lb.clientProposals[i].Reply)
+		//	}
+		//}
 
 		r.checkLatency(areply.Replica, areply.Instance, inst.startTime, inst.committedTime, LATENCY_THRESHOLD, "COMMIT")
 		r.recordInstanceMetadata(inst)
