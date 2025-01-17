@@ -23,12 +23,12 @@ import (
 	"time"
 )
 
-const REQUEST_TIMEOUT = 100 * time.Millisecond
+const REQUEST_TIMEOUT = 2000 * time.Millisecond
 const GET_VIEW_TIMEOUT = 100 * time.Millisecond
 const GC_DEBUG_ENABLED = false
 const PRINT_STATS = false
 
-var masterAddr *string = flag.String("maddr", "", "Master address. Defaults to localhost")
+var masterAddr *string = flag.String("maddr", "0.0.0.0", "Master address. Defaults to localhost")
 var masterPort *int = flag.Int("mport", 7087, "Master port.  Defaults to 7077.")
 var reqsNb *int = flag.Int("q", 5000, "Total number of requests. Defaults to 5000.")
 var writes *int = flag.Int("w", 100, "Percentage of updates (writes). Defaults to 100%.")
@@ -314,10 +314,22 @@ func main() {
 
 	var pilotErr, pilotErr1 error
 	var lastGVSent0, lastGVSent1 time.Time
+	key := ""
+	val := ""
+	i := 0
+	for i < 500 {
+		if i < 23 {
+			key += "a"
+		}
+		val += "b"
+		i += 1
+	}
+
 	for i := 0; i < *reqsNb; i++ {
 
 		id := int32(i)
-		args := genericsmrproto.Propose{id, state.Command{ClientId: clientId, OpId: id, Op: state.PUT, K: 0, V: 0}, time.Now().UnixNano()}
+		args := genericsmrproto.Propose{id, state.Command{ClientId: clientId,
+			OpId: id, Op: state.PUT, K: state.Key(key), V: state.Value(val)}, time.Now().UnixNano()}
 
 		/* Prepare proposal */
 		dlog.Printf("Sending proposal %d\n", id)
@@ -327,8 +339,8 @@ func main() {
 		} else {
 			args.Command.Op = state.GET
 		}
-		args.Command.K = state.Key(karray[i])
-		args.Command.V = state.Value(i)
+		//args.Command.K = state.Key(karray[i])
+		//args.Command.V = state.Value(i)
 		//args.Timestamp = time.Now().UnixNano()
 
 		before := time.Now()
@@ -430,7 +442,7 @@ func main() {
 						}
 
 					case <-to.C:
-						fmt.Printf("Client %v: TIMEOUT for request %v\n", clientId, id)
+						//fmt.Printf("Client %v: TIMEOUT for request %v\n", clientId, id)
 						repliedCmdId = -1
 						rcvingTime = time.Now()
 						succeeded = false
