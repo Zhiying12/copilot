@@ -314,11 +314,11 @@ func main() {
 
 	var pilotErr, pilotErr1 error
 	var lastGVSent0, lastGVSent1 time.Time
-	key := ""
+	key := strconv.Itoa(*cid)
 	val := ""
 	i := 0
 	for i < 500 {
-		if i < 23 {
+		if len(key) < 23 {
 			key += "a"
 		}
 		val += "b"
