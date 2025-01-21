@@ -1,8 +1,8 @@
 package genericsmrproto
 
 import (
-	"encoding/binary"
 	"io"
+	"log"
 	"sync"
 )
 
@@ -553,12 +553,24 @@ func (t *ProposeReplyTS) Marshal(wire io.Writer) {
 	wire.Write(bs)
 	bs = b[:4]
 	tmp32 := t.CommandId
-	binary.LittleEndian.PutUint32(bs, uint32(tmp32))
+	bs[0] = byte(tmp32)
+	bs[1] = byte(tmp32 >> 8)
+	bs[2] = byte(tmp32 >> 16)
+	bs[3] = byte(tmp32 >> 24)
+	//binary.LittleEndian.PutUint32(bs, uint32(tmp32))
 	wire.Write(bs)
 	t.Value.Marshal(wire)
 	bs = b[:8]
 	tmp64 := t.Timestamp
-	binary.LittleEndian.PutUint64(bs, uint64(tmp64))
+	bs[0] = byte(tmp64)
+	bs[1] = byte(tmp64 >> 8)
+	bs[2] = byte(tmp64 >> 16)
+	bs[3] = byte(tmp64 >> 24)
+	bs[4] = byte(tmp64 >> 32)
+	bs[5] = byte(tmp64 >> 40)
+	bs[6] = byte(tmp64 >> 48)
+	bs[7] = byte(tmp64 >> 56)
+	//binary.LittleEndian.PutUint64(bs, uint64(tmp64))
 	wire.Write(bs)
 }
 
@@ -845,6 +857,7 @@ func (t *Propose) Unmarshal(wire io.Reader) error {
 	t.CommandId = int32((uint32(bs[0]) | (uint32(bs[1]) << 8) | (uint32(bs[2]) << 16) | (uint32(bs[3]) << 24)))
 	err := t.Command.Unmarshal(wire)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	bs = b[:8]

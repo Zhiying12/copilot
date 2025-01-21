@@ -2,6 +2,7 @@ package state
 
 import (
 	"io"
+	"log"
 )
 
 const (
@@ -83,11 +84,23 @@ func (t *Command) Unmarshal(r io.Reader) error {
 }
 
 func (t *Key) Marshal(w io.Writer) {
-	w.Write(*t)
+	n, err := w.Write(*t)
+	if err != nil {
+		log.Println("Error writing key", err)
+	}
+	if n != KEY_SIZE {
+		log.Println("Error writing key", KEY_SIZE)
+	}
 }
 
 func (t *Value) Marshal(w io.Writer) {
-	w.Write(*t)
+	n, err := w.Write(*t)
+	if err != nil {
+		log.Println("Error writing value", err)
+	}
+	if n != VALUE_SIZE {
+		log.Println("Error writing value", VALUE_SIZE)
+	}
 }
 
 func (t *Key) Unmarshal(r io.Reader) error {
