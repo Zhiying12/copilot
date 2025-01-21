@@ -86,7 +86,7 @@ func (t *Command) Unmarshal(r io.Reader) error {
 func (t *Key) Marshal(w io.Writer) {
 	n, err := w.Write(*t)
 	if err != nil {
-		log.Println("Error writing key", err)
+		log.Println("Error writing key err", err)
 	}
 	if n != KEY_SIZE {
 		log.Println("Error writing key", KEY_SIZE)
@@ -96,10 +96,10 @@ func (t *Key) Marshal(w io.Writer) {
 func (t *Value) Marshal(w io.Writer) {
 	n, err := w.Write(*t)
 	if err != nil {
-		log.Println("Error writing value", err)
+		log.Println("Error writing value err", err)
 	}
 	if n != VALUE_SIZE {
-		log.Println("Error writing value", VALUE_SIZE)
+		log.Println("Error writing value", n)
 	}
 }
 
